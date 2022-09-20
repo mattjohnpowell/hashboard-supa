@@ -10,6 +10,34 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Home {
+  id          String   @id @default(cuid())
+  image       String?
+  title       String
+  description String
+  price       Float
+  guests      Int
+  beds        Int
+  baths       Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  owner       User     @relation(fields: [ownerId], references: [id])
+  ownerId     String
+}
+
+model Apikeys {
+  id         String @id @default(cuid())
+  nickname   String
+  subaccount String
+  exchange   String
+  apikey     String
+  secretkey  String
+  passphrase String
+  uid        String
+  owner      User   @relation(fields: [ownerId], references: [id])
+  ownerId    String
+}
+
 model Account {
   id                 String  @id @default(cuid())
   userId             String
@@ -48,6 +76,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   listedHomes   Home[]
+  listedAPIKeys Apikeys[]
 }
 
 model VerificationToken {
@@ -56,19 +85,4 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
-}
-
-model Home {
-  id          String   @id @default(cuid())
-  image       String?
-  title       String
-  description String
-  price       Float
-  guests      Int
-  beds        Int
-  baths       Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  owner       User     @relation(fields: [ownerId], references: [id])
-  ownerId     String
 }

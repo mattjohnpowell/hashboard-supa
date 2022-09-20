@@ -1,7 +1,7 @@
 import { getSession } from 'next-auth/react';
 import axios from 'axios';
 import Layout from '@/components/Layout';
-import ListingForm from '@/components/ListingForm';
+import ListingForm from '@/components/Forms/ListingForm';
 import { prisma } from '@/lib/prisma';
 
 export async function getServerSideProps(context) {

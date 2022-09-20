@@ -16,7 +16,24 @@ const Input = ({ type = '', label = '', className = '', ...props }) => {
       ) : null}
 
       <div className="flex-1">
-        {type === 'textarea' ? (
+        {type==='select' ? (
+          <select
+            className={classNames(
+              'shadow-sm rounded-md py-2 pl-4 border focus:outline-none focus:ring-4 focus:ring-opacity-20 transition disabled:opacity-50 disabled:cursor-not-allowed border-gray-300 focus:border-gray-400 focus:ring-gray-400',
+              error ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : null
+            )}
+            {...field}
+            {...props} 
+          > 
+            
+            {props.data.map((oneexchange) => (
+                      <option value={oneexchange.name} key={oneexchange.name}>
+                        {oneexchange.name}
+                      </option>
+                    ))}
+          </select>
+        
+        /* {type === 'textarea' ? (
           <textarea
             {...field}
             {...props}
@@ -26,7 +43,7 @@ const Input = ({ type = '', label = '', className = '', ...props }) => {
                 ? 'border-red-400 text-red-800 focus:border-red-400 focus:ring-red-400'
                 : 'border-gray-300 focus:border-gray-400 focus:ring-gray-400'
             )}
-          />
+          /> */
         ) : (
           <div className="relative">
             <input
@@ -50,7 +67,7 @@ const Input = ({ type = '', label = '', className = '', ...props }) => {
       </div>
 
       {error ? (
-        <p name="email" className="text-red-600 text-sm first-letter:uppercase">
+        <p name="text" className="text-red-600 text-sm first-letter:uppercase">
           {error}
         </p>
       ) : null}
@@ -62,6 +79,7 @@ Input.propTypes = {
   type: PropTypes.string.isRequired,
   label: PropTypes.string,
   className: PropTypes.string,
+  data: PropTypes.array,
 };
 
 export default Input;

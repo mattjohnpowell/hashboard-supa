@@ -1,12 +1,12 @@
-import { Fragment, useState } from 'react';
-import { useRouter } from 'next/router';
-import Head from 'next/head';
-import Link from 'next/link';
-import Image from 'next/image';
-import PropTypes from 'prop-types';
-import { useSession, signOut } from 'next-auth/react';
-import AuthModal from './AuthModal';
-import { Menu, Transition } from '@headlessui/react';
+import { Fragment, useState } from "react";
+import { useRouter } from "next/router";
+import Head from "next/head";
+import Link from "next/link";
+import Image from "next/image";
+import PropTypes from "prop-types";
+import { useSession, signOut } from "next-auth/react";
+import AuthModal from "./AuthModal";
+import { Menu, Transition } from "@headlessui/react";
 import {
   HeartIcon,
   HomeIcon,
@@ -14,27 +14,33 @@ import {
   PlusIcon,
   SparklesIcon,
   UserIcon,
-} from '@heroicons/react/outline';
-import { ChevronDownIcon } from '@heroicons/react/solid';
+  CogIcon,
+} from "@heroicons/react/outline";
+import { ChevronDownIcon } from "@heroicons/react/solid";
 
 const menuItems = [
   {
-    label: 'List a new home',
+    label: "Settings",
+    icon: CogIcon,
+    href: "/cryptoAccounts",
+  },
+  {
+    label: "List a new home",
     icon: PlusIcon,
-    href: '/create',
+    href: "/create",
   },
   {
-    label: 'My homes',
+    label: "My homes",
     icon: HomeIcon,
-    href: '/homes',
+    href: "/homes",
   },
   {
-    label: 'Favorites',
+    label: "Favorites",
     icon: HeartIcon,
-    href: '/favorites',
+    href: "/favorites",
   },
   {
-    label: 'Logout',
+    label: "Logout",
     icon: LogoutIcon,
     onClick: signOut,
   },
@@ -45,7 +51,7 @@ const Layout = ({ children = null }) => {
 
   const { data: session, status } = useSession();
   const user = session?.user;
-  const isLoadingUser = status === 'loading';
+  const isLoadingUser = status === "loading";
 
   const [showModal, setShowModal] = useState(false);
 
@@ -55,10 +61,10 @@ const Layout = ({ children = null }) => {
   return (
     <>
       <Head>
-        <title>SupaVacation | The Modern Dev</title>
+        <title>Hashboard | Your Crypto Organised</title>
         <meta
           name="title"
-          content="Learn how to Build a Fullstack App with Next.js, PlanetScale & Prisma | The Modern Dev"
+          content="Hashboard | Your Crypto Organised"
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -71,14 +77,14 @@ const Layout = ({ children = null }) => {
                 <a className="flex items-center space-x-1">
                   <SparklesIcon className="shrink-0 w-8 h-8 text-rose-500" />
                   <span className="text-xl font-semibold tracking-wide">
-                    Supa<span className="text-rose-600">Vacation</span>
+                    Hash<span className="text-rose-600">Board</span>
                   </span>
                 </a>
               </Link>
               <div className="flex items-center space-x-4">
                 <button
                   onClick={() => {
-                    session?.user ? router.push('/create') : openModal();
+                    session?.user ? router.push("/create") : openModal();
                   }}
                   className="hidden sm:block hover:bg-gray-200 transition px-3 py-1 rounded-md"
                 >
@@ -93,7 +99,7 @@ const Layout = ({ children = null }) => {
                         {user?.image ? (
                           <Image
                             src={user?.image}
-                            alt={user?.name || 'Avatar'}
+                            alt={user?.name || "Avatar"}
                             layout="fill"
                           />
                         ) : (
@@ -117,7 +123,7 @@ const Layout = ({ children = null }) => {
                             {user?.image ? (
                               <Image
                                 src={user?.image}
-                                alt={user?.name || 'Avatar'}
+                                alt={user?.name || "Avatar"}
                                 layout="fill"
                               />
                             ) : (
@@ -180,7 +186,7 @@ const Layout = ({ children = null }) => {
 
         <main className="flex-grow container mx-auto">
           <div className="px-4 py-12">
-            {typeof children === 'function' ? children(openModal) : children}
+            {typeof children === "function" ? children(openModal) : children}
           </div>
         </main>
 

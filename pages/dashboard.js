@@ -1,26 +1,26 @@
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router";
 import { getSession } from "next-auth/react";
-import axios from "axios";
-
-//Layout
+import { useRouter } from "next/router";
+//libs
+import { prisma } from "@/lib/prisma";
+import getExchangeTotals from "@/lib/getExchangeTotals";
+//layout
 import Layout from "@/components/Layout";
 import RoundedContainer from "@/components/LayoutParts/RoundedContainer";
-
-import ListingForm from "@/components/Forms/ListingForm";
-import CEXAPIForm from "@/components/Forms/CEXAPIForm";
-import { useTable } from "react-table";
-import toast from "react-hot-toast";
-import ExchangeBalance from "@/components/ChartComponents/ExchangeBalance";
-import ccxt from "ccxt";
-import getExchangeTotals from "@/lib/getExchangeTotals";
-import { responseSymbol } from "next/dist/server/web/spec-compliant/fetch-event";
-import parseFromString from "@/lib/xmlhelper";
-import * as dfd from "danfojs";
+import RoundedContainerSingleFigure from "@/components/LayoutParts/RoundedContainerSingleFigure";
+import DashPanel from "@/components/LayoutParts/DashPanel";
 import { Chart } from "react-google-charts";
-import { prisma } from "@/lib/prisma";
-
+//network
+import axios from "axios";
+import toast from "react-hot-toast";
+import TopMovers from "./../components/LayoutParts/TopMovers";
+import {
+  HiCurrencyDollar,
+  HiCurrencyPound,
+  HiCurrencyEuro,
+} from "react-icons/hi";
 const CURRENCY_SIGN = "$";
+const totalBalance = 80000;
 
 export async function getServerSideProps(context) {
   // Check if user is authenticated
@@ -50,17 +50,13 @@ export async function getServerSideProps(context) {
   };
 }
 let sortedSpotAssetDataforPie = [];
-const CryptoAccounts = ({ apikeys = [] }) => {
-  const [isOwner, setIsOwner] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [deletingRow, setDeletingRow] = useState(-1);
-  const [keys, setKeys] = useState([]);
+const Dashboard = ({ apikeys = [] }) => {
+  const [spotAssetData, setSpotAssetData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [totalBalance, setTotalBalance] = useState(0);
   const [exchangeData, setExchangeData] = useState([]);
-  const [count, setCount] = useState(0);
-  const [spotAssetData, setSpotAssetData] = useState([]);
   const [exchangePositions, setExchangePositions] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const router = useRouter();
   // Call this function whenever you want to
@@ -72,33 +68,6 @@ const CryptoAccounts = ({ apikeys = [] }) => {
   const asortedSpotAssetDataforPieKey = (data) =>
     axios.post("/api/cexapikey", data);
 
-  const deleteApiKey = async (/** @type {any} */ rowId) => {
-    setDeletingRow(rowId);
-    let toastId;
-    try {
-      toastId = toast.loading("Deleting...");
-      setDeleting(true);
-      // Delete home from DB
-      await axios.delete(`/api/apikeys/${rowId}`);
-      // Redirect user
-      toast.success("Successfully deleted", { id: toastId });
-      refreshData();
-      setDeleting(false);
-      setDeletingRow(-1);
-    } catch (e) {
-      console.log(e);
-      toast.error("Unable to delete key", { id: toastId });
-      setDeleting(false);
-      setDeletingRow(-1);
-    }
-  };
-
-  // check if exchange requiredCredentials with ccxt and return true or false if passphrase is needed
-  const handleClick = (num) => {
-    // 👇️ take parameter passed from Child component
-    totalExerciseCount += num;
-    setCount(totalExerciseCount);
-  };
   let totalExerciseCount = 0;
 
   const fetchData = async () => {
@@ -192,8 +161,109 @@ const CryptoAccounts = ({ apikeys = [] }) => {
       CURRENCY_SIGN +
       totalBalance.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"),
   };
+
+  const data = [
+    ["ID", "Life Expectancy", "Fertility Rate", "Region", "Population"],
+    ["CAN", 80.66, 1.67, "North America", 33739900],
+    ["DEU", 79.84, 1.36, "Europe", 81902307],
+    ["DNK", 78.6, 1.84, "Europe", 5523095],
+    ["EGY", 72.73, 2.78, "Middle East", 79716203],
+    ["GBR", 80.05, 2, "Europe", 61801570],
+    ["IRN", 72.49, 1.7, "Middle East", 73137148],
+    ["IRQ", 68.09, 4.77, "Middle East", 31090763],
+    ["ISR", 81.55, 2.96, "Middle East", 7485600],
+    ["RUS", 68.6, 1.54, "Europe", 141850000],
+    ["USA", 78.09, 2.05, "North America", 307007000],
+  ];
+
+  const bubbleOptions = {
+    title:
+      "Correlation between life expectancy, fertility rate " +
+      "and population of some world countries (2010)",
+    hAxis: { title: "Life Expectancy" },
+    vAxis: { title: "Fertility Rate" },
+    bubble: { textStyle: { fontSize: 11 } },
+  };
+
   return (
     <Layout>
+      <DashPanel>
+        <RoundedContainerSingleFigure
+          title="USD Balance"
+          className="text-green-800"
+        >
+          <div className="flex">
+            <div className="min-h-full">
+              <HiCurrencyDollar className="min-h-full"></HiCurrencyDollar>
+            </div>
+            <div>
+              {totalBalance && typeof totalBalance === "number" ? (
+                "$" +
+                totalBalance
+                  .toFixed(2)
+                  .replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")
+              ) : (
+                <>No USD</>
+              )}
+            </div>
+          </div>
+        </RoundedContainerSingleFigure>
+        <RoundedContainerSingleFigure
+          title="GBP Balance"
+          className="text-red-700"
+        >
+          <div className="flex">
+            <div className="min-h-full">
+              <HiCurrencyPound className="min-h-full"></HiCurrencyPound>
+            </div>
+            <div>
+              {totalBalance && typeof totalBalance === "number" ? (
+                "$" +
+                totalBalance
+                  .toFixed(2)
+                  .replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")
+              ) : (
+                <>No USD</>
+              )}
+            </div>
+          </div>
+        </RoundedContainerSingleFigure>
+        <RoundedContainerSingleFigure
+          title="EUR Balance"
+          className="text-blue-800"
+        >
+          <div className="flex">
+            <div className="min-h-full">
+              <HiCurrencyEuro className="min-h-full"></HiCurrencyEuro>
+            </div>
+            <div>
+              {totalBalance && typeof totalBalance === "number" ? (
+                "$" +
+                totalBalance
+                  .toFixed(2)
+                  .replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")
+              ) : (
+                <>No USD</>
+              )}
+            </div>
+          </div>
+        </RoundedContainerSingleFigure>
+        <RoundedContainerSingleFigure>
+          <TopMovers>
+            <div></div>
+          </TopMovers>
+        </RoundedContainerSingleFigure>
+      </DashPanel>
+
+      <RoundedContainer>
+        <Chart
+          chartType="BubbleChart"
+          width="100%"
+          height="400px"
+          data={data}
+          options={bubbleOptions}
+        />
+      </RoundedContainer>
       <div className="">
         <>
           <RoundedContainer>
@@ -210,14 +280,7 @@ const CryptoAccounts = ({ apikeys = [] }) => {
             )}
           </RoundedContainer>
         </>
-        <div className="flex flex-col">
-          {totalBalance && typeof totalBalance === "number" ? (
-            "$" +
-            totalBalance.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")
-          ) : (
-            <>No USD</>
-          )}
-        </div>
+        <div className="flex flex-col"></div>
         <div className="grid grid-cols-2 gap-4 border-b border-gray-200">
           {!loading ? (
             <>
@@ -301,109 +364,7 @@ const CryptoAccounts = ({ apikeys = [] }) => {
           )}
         </div>
       </div>
-      <RoundedContainer>
-        {/* {apikeys.map((apikey) => (
-          <ExchangeBalance
-            key={apikey.id}
-            exchangeName={apikey.exchange}
-            apikey={apikey.apikey}
-            secretkey={apikey.secretkey}
-            passphrase={apikey.passphrase}
-            nickname={apikey.nickname}
-            subaccount={apikey.subaccount}
-            uid={apikey.uid}
-            handleClick={handleClick}
-          />
-        ))} */}
-        <h2>
-          Count: $
-          {(count / 2).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")}
-        </h2>
-        <h1 className="text-xl font-medium text-gray-800">Your API Keys</h1>
-        <p className="text-gray-500">Add a new key at the bottom.</p>
-
-        <div className="mt-8 overflow-x-auto relative ">
-          <table className="table-auto text-sm border-separate border-spacing-2 border border-slate-100w-full text-sm text-left text-gray-500 dark:text-gray-400">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-              <tr>
-                <th className="border border-slate-200 truncate text-ellipsis">
-                  Exhange
-                </th>
-                <th className="border border-slate-200 truncate text-ellipsis">
-                  Nickname
-                </th>
-                <th className="border border-slate-200 truncate text-ellipsis">
-                  Subaccount
-                </th>
-                <th className="border border-slate-200 max-w-xs truncate text-ellipsis">
-                  API Key
-                </th>
-                <th className="border border-slate-200 max-w-xs truncate text-ellipsis">
-                  Secret Key
-                </th>
-                <th className="border border-slate-200 truncate text-ellipsis">
-                  Passphrase
-                </th>
-                <th className="border border-slate-200 truncate text-ellipsis">
-                  Uid
-                </th>
-                <th className="border border-slate-200 truncate text-ellipsis">
-                  🗑
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {apikeys &&
-                apikeys.map((apikey) =>
-                  deleting && deletingRow === apikey.id ? (
-                    <tr>deleting...</tr>
-                  ) : (
-                    <tr
-                      key={apikey.id}
-                      className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-                    >
-                      <th className="font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        {apikey.exchange}
-                      </th>
-                      <td className="border border-slate-200 truncate text-ellipsis">
-                        {apikey.nickname}
-                      </td>
-                      <td className="border border-slate-200 truncate text-ellipsis">
-                        {apikey.subaccount}
-                      </td>
-                      <td className="border border-slate-200 max-w-xs  overflow-hidden truncate text-ellipsis">
-                        {apikey.apikey}
-                      </td>
-                      <td className="border border-slate-200 max-w-xs truncate text-ellipsis overflow-hidden">
-                        {apikey.secretkey}
-                      </td>
-                      <td className="border border-slate-200 truncate text-ellipsis">
-                        {apikey.passphrase && apikey.passphrase}
-                      </td>
-                      <td className="border border-slate-200 truncate text-ellipsis">
-                        {apikey.uid && apikey.uid}
-                      </td>
-                      <td className="border border-slate-200 ">
-                        <a href="#" onClick={() => deleteApiKey(apikey.id)}>
-                          &#10060;
-                        </a>
-                      </td>
-                    </tr>
-                  )
-                )}
-            </tbody>
-          </table>
-        </div>
-        <div className="mt-8">
-          <CEXAPIForm
-            buttonText="Add Key"
-            redirectPath="/cryptoAccounts"
-            onSubmit={asortedSpotAssetDataforPieKey}
-          />
-        </div>
-      </RoundedContainer>
     </Layout>
   );
 };
-
-export default CryptoAccounts;
+export default Dashboard;

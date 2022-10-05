@@ -128,7 +128,6 @@ const CEXAPIForm = ({
                 <Input
                   name="passphrase"
                   type="text"
-
                   label={selectionState === "CoinbasePro" ? "Passphrase" : ""}
                   placeholder="passphrase"
                   hidden={selectionState === "CoinbasePro" ? false : true}
@@ -137,10 +136,9 @@ const CEXAPIForm = ({
                 <Input
                   name="uid"
                   type="text"
-
-                  label={selectionState === ("Huobi") ? "uid" : ""}
+                  label={selectionState === "Huobi" ? "uid" : ""}
                   placeholder="uid"
-                  hidden={selectionState === ("Huobi") ? false : true}
+                  hidden={selectionState === "Huobi" ? false : true}
                   disabled={disabled}
                 />
               </div>

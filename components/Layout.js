@@ -8,43 +8,18 @@ import { useSession, signOut } from "next-auth/react";
 import AuthModal from "./AuthModal";
 import { Menu, Transition } from "@headlessui/react";
 import {
-  HeartIcon,
-  HomeIcon,
-  LogoutIcon,
-  PlusIcon,
+
   SparklesIcon,
   UserIcon,
-  CogIcon,
+
+   
 } from "@heroicons/react/outline";
 import { ChevronDownIcon } from "@heroicons/react/solid";
-
-const menuItems = [
-  {
-    label: "Settings",
-    icon: CogIcon,
-    href: "/cryptoAccounts",
-  },
-  {
-    label: "List a new home",
-    icon: PlusIcon,
-    href: "/create",
-  },
-  {
-    label: "My homes",
-    icon: HomeIcon,
-    href: "/homes",
-  },
-  {
-    label: "Favorites",
-    icon: HeartIcon,
-    href: "/favorites",
-  },
-  {
-    label: "Logout",
-    icon: LogoutIcon,
-    onClick: signOut,
-  },
-];
+import Sidebar from "./LayoutParts/Sidebar";
+import Footer from "./Footer";
+import React from "react";
+import {menuItems, } from "../lib/menus";
+import {sidebarItems} from "../lib/menus";
 
 const Layout = ({ children = null }) => {
   const router = useRouter();
@@ -62,22 +37,19 @@ const Layout = ({ children = null }) => {
     <>
       <Head>
         <title>Hashboard | Your Crypto Organised</title>
-        <meta
-          name="title"
-          content="Hashboard | Your Crypto Organised"
-        />
+        <meta name="title" content="Hashboard | Your Crypto Organised" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <div className="min-h-screen flex flex-col">
-        <header className="h-16 w-full shadow-md">
-          <div className="h-full container mx-auto">
-            <div className="h-full px-4 flex justify-between items-center space-x-4">
+        <header className=" z-50 bg-white h-screen sticky top-0 h-16 w-full shadow-md">
+          <div className="h-full container mx-1 w-auto">
+            <div className="h-full px-1 flex justify-between items-center space-x-5">
               <Link href="/">
-                <a className="flex items-center space-x-1">
-                  <SparklesIcon className="shrink-0 w-8 h-8 text-rose-500" />
+                <a className="flex  space-x-1">
+                  <SparklesIcon className="shrink-0 w-8 h-8 text-sky-500" />
                   <span className="text-xl font-semibold tracking-wide">
-                    Hash<span className="text-rose-600">Board</span>
+                    Hash<span className="text-sky-600">Board</span>
                   </span>
                 </a>
               </Link>
@@ -174,7 +146,7 @@ const Layout = ({ children = null }) => {
                   <button
                     type="button"
                     onClick={openModal}
-                    className="ml-4 px-4 py-1 rounded-md bg-rose-600 hover:bg-rose-500 focus:outline-none focus:ring-4 focus:ring-rose-500 focus:ring-opacity-50 text-white transition"
+                    className="ml-4 px-4 py-1 rounded-md bg-sky-600 hover:bg-sky-500 focus:outline-none focus:ring-4 focus:ring-sky-500 focus:ring-opacity-50 text-white transition"
                   >
                     Log in
                   </button>
@@ -183,15 +155,17 @@ const Layout = ({ children = null }) => {
             </div>
           </div>
         </header>
-
-        <main className="flex-grow container mx-auto">
-          <div className="px-4 py-12">
-            {typeof children === "function" ? children(openModal) : children}
-          </div>
-        </main>
+        <Sidebar sidebarItems={sidebarItems}>
+          <main className="flex-grow bg-gray-50 container mx-auto">
+            <div className="px-4 py-12">
+              {typeof children === "function" ? children(openModal) : children}
+            </div>
+          </main>
+        </Sidebar>
 
         <AuthModal show={showModal} onClose={closeModal} />
       </div>
+      <Footer />
     </>
   );
 };

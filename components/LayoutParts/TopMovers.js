@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from "react";
 var ccxt = require("ccxt").pro;
 
-const getBal = async ({}) => {
-  const [bal, setBal] = useState();
-};
-
 const TopMovers = ({ children }) => {
   const [bal, setBal] = useState();
   const proxy = "https://c123anywhere.herokuapp.com/";
